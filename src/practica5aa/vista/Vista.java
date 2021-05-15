@@ -92,7 +92,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
             str.append("Selecciona un fitxer...");
         }
         else{
-
+            str.append(prog.getModel().getText());
         }
         fileInfo.setText(str.toString());
         
@@ -114,16 +114,14 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
                 if (returnVal == JFileChooser.APPROVE_OPTION){
                     String fname = fc.getSelectedFile().getPath();
                     System.out.println(fname);
-                    //Fer cosa
+                    prog.getModel().setFitxer(fname);
+                    prog.notificar(Missatge.LLEGEIX, 0);
                     botoCorr.setEnabled(true);
                     this.pinta();
                 }
                 break;
-            case "COMPRIMIR":
-                prog.notificar(Missatge.COMPRIMEIX, 0);
-                break;
-            case "DESCOMPRIMIR":
-                prog.notificar(Missatge.DESCOMPRIMEIX, 0);
+            case "MARCAR INCORRECTES":
+                prog.notificar(Missatge.CORREGEIX, 0);
                 break;
         }
         

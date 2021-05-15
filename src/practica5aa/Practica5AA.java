@@ -56,11 +56,11 @@ public class Practica5AA implements Notifica{
         
         switch(m){
             
-            case COMPRIMEIX:
+            case LLEGEIX:
                 control = new Control(this);
                 control.notificar(m, n);
                 break;
-            case DESCOMPRIMEIX:
+            case CORREGEIX:
                 control = new Control(this);
                 control.notificar(m, n);
                 break;

@@ -13,8 +13,8 @@ package practica5aa;
 public interface Notifica {
     enum Missatge {
         DIBUIXA,
-        COMPRIMEIX,
-        DESCOMPRIMEIX,
+        LLEGEIX,
+        CORREGEIX,
         POPUP
     }
     /**
