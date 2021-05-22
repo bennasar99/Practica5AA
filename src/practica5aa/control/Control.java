@@ -135,7 +135,8 @@ public class Control extends Thread implements Notifica {
             else{
                 String newPar = prog.getModel().getSimilar(par);
                 System.out.println("INCORRECTA "+par+", CORRECCIÓ: "+newPar);
-                corregit.replace(par, newPar);
+                String[] split = corregit.split(par);
+                corregit = corregit.replace(par, Model.REDSTRING+par+Model.REDSTRING);
             }
         }
         prog.getModel().clearText();

@@ -7,6 +7,7 @@ package practica5aa.vista;
 import practica5aa.Practica5AA;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
@@ -27,9 +28,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import practica5aa.Notifica;
+import practica5aa.model.Model;
 
 /**
  *
@@ -41,7 +48,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
     
     private final JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
     
-    JTextArea fileInfo = new JTextArea("Fitxer: NULL");
+    JTextPane textPane = new JTextPane();
     JButton botoSel;
     JButton botoCorr;
     
@@ -65,19 +72,21 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
 
         this.add(BorderLayout.NORTH, bots);
         
-        fileInfo.setEditable(false);        
-        this.add(BorderLayout.CENTER, fileInfo);
-        
-        fileInfo.addComponentListener(new ComponentAdapter() { //Redimensionament de la finestra
+        textPane.addComponentListener(new ComponentAdapter() { //Redimensionament de la finestra
             
             @Override
             public void componentResized(ComponentEvent e) {
                 
-                fileInfo.setSize(e.getComponent().getSize().width, e.getComponent().getSize().height);
+                textPane.setSize(e.getComponent().getSize().width, e.getComponent().getSize().height);
                 
             }
             
         });
+        textPane.setVisible(true);
+        textPane.setEditable(true);
+        textPane.setEnabled(true);
+        
+        this.add(BorderLayout.CENTER, textPane);
         
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -86,6 +95,8 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         
         this.pack();
         this.setVisible(true);
+   
+        textPane.setText("");
         
         StringBuilder str = new StringBuilder();
         if (fc.getSelectedFile() == null){
@@ -94,7 +105,26 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         else{
             str.append(prog.getModel().getText());
         }
-        fileInfo.setText(str.toString());
+        
+        String[] substr = str.toString().split(Model.REDSTRING);
+        Color col = Color.BLACK;
+        if (str.toString().startsWith(Model.REDSTRING)){
+            col = Color.RED;
+        }
+        for (String part : substr){
+            if (part.isEmpty()){
+                continue;
+            }
+            System.out.println("PART: "+part);
+            appendToPane(textPane, part, col);
+            if (col == Color.BLACK){
+                col = Color.RED;
+            }
+            else{
+                col = Color.BLACK;
+            }
+        }
+        //appendToPane(textPane, str.toString(), Color.BLACK);
         
         this.revalidate();
         this.repaint();
@@ -142,4 +172,19 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
             JOptionPane.showMessageDialog(null, "He tardat "+n+" nanosegons", "ACABAT!", JOptionPane.INFORMATION_MESSAGE);
         }
     }
+    
+    private void appendToPane(JTextPane tp, String msg, Color c)
+    {
+        StyleContext sc = StyleContext.getDefaultStyleContext();
+        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+
+        aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
+        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+
+        int len = tp.getDocument().getLength();
+        tp.setCaretPosition(len);
+        tp.setCharacterAttributes(aset, false);
+        tp.replaceSelection(msg);
+    }
+    
 }

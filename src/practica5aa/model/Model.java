@@ -17,6 +17,7 @@ public class Model {
     private String path;
     private final String dirPath = System.getProperty("user.dir") + "/dic/esutfnobom.dic";
     private int nWord = 0;
+    public final static String REDSTRING = "<b>";
 
     public Model(){
         text = new StringBuilder();
