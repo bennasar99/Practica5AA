@@ -20,6 +20,7 @@ import static java.awt.image.ImageObserver.HEIGHT;
 import static java.awt.image.ImageObserver.WIDTH;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -29,6 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.AttributeSet;
@@ -51,11 +53,14 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
     JTextPane textPane = new JTextPane();
     JButton botoSel;
     JButton botoCorr;
+    JButton botoSeg;
+    JComboBox boxCorr;
+    JLabel parActual = new JLabel();
     
     public Vista (String titol, Practica5AA p){
         
         super(titol);
-        this.setPreferredSize(new Dimension(400, 300));
+        this.setPreferredSize(new Dimension(800, 600));
         this.prog = p;
         this.getContentPane().setLayout(new BorderLayout());
         
@@ -66,10 +71,31 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         bots.add(botoSel);
         
         botoCorr = new JButton("Marcar incorrectes");
-        botoCorr.setEnabled(true);
+        botoCorr.setEnabled(false);
         botoCorr.addActionListener(this);
         bots.add(botoCorr);
+        
+        bots.add(new JLabel("Correcció: "));
+        Border border = BorderFactory.createLineBorder(Color.BLUE, 5);
+        parActual.setBorder(border);
+        bots.add(parActual);
+        bots.add(new JLabel("a"));
 
+        String[] opcionsCorreccio = { "..." };
+
+        //Create the combo box, select item at index 4.
+        //Indices start at 0, so 4 specifies the pig.
+        boxCorr = new JComboBox(opcionsCorreccio);
+        boxCorr.addActionListener(this);
+        boxCorr.setToolTipText("Selecciona la paraula correcta:");
+        
+        bots.add(BorderLayout.NORTH, boxCorr);
+        
+        botoSeg = new JButton("Corregir següent");
+        botoSeg.setEnabled(false);
+        botoSeg.addActionListener(this);
+        bots.add(botoSeg);
+        
         this.add(BorderLayout.NORTH, bots);
         
         textPane.addComponentListener(new ComponentAdapter() { //Redimensionament de la finestra
@@ -104,6 +130,17 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         }
         else{
             str.append(prog.getModel().getText());
+            if (prog.getModel().getOpcions() != null){
+                            parActual.setText(prog.getModel().getText().split(Model.REDSTRING)[1]);
+                String[] opcions = new String[0];
+                if (!parActual.getText().isEmpty()){
+                    opcions = prog.getModel().getSimilar(parActual.getText(), 3);
+                }
+                this.boxCorr.removeAllItems();
+                for (int i = 0; i < opcions.length; i++){
+                    this.boxCorr.addItem(opcions[i]);
+                }
+            }
         }
         
         String[] substr = str.toString().split(Model.REDSTRING);
@@ -152,6 +189,16 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
                 break;
             case "MARCAR INCORRECTES":
                 prog.notificar(Missatge.CORREGEIX, 0);
+                botoSeg.setEnabled(true);
+                //parActual.setText(prog.getModel().getText().split(Model.REDSTRING)[1]);
+                break;
+            case "CORREGIR SEGÜENT":
+                String ant = prog.getModel().getText();
+                System.out.println("Replace "+Model.REDSTRING+parActual.getText()+Model.REDSTRING+" with "+ boxCorr.getSelectedItem().toString());
+                prog.getModel().setText(prog.getModel().getText().replace(Model.REDSTRING+parActual.getText()+Model.REDSTRING, boxCorr.getSelectedItem().toString()));
+                botoSeg.setEnabled(true);
+                System.out.println("Anterior: "+ant+", Actual: "+prog.getModel().getText());
+                this.pinta();
                 break;
         }
         

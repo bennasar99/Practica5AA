@@ -6,7 +6,12 @@
 package practica5aa.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class Model {
@@ -18,13 +23,26 @@ public class Model {
     private final String dirPath = System.getProperty("user.dir") + "/dic/esutfnobom.dic";
     private int nWord = 0;
     public final static String REDSTRING = "<b>";
+    private String[] opcions;
 
     public Model(){
         text = new StringBuilder();
     }
     
+    public void setOpcions(String[] opcions){
+        this.opcions = opcions;
+    }
+    
+    public String[] getOpcions(){
+        return this.opcions;
+    }
+    
     public String getText(){
         return text.toString();
+    }
+    
+    public void setText(String text){
+        this.text = new StringBuilder(text);
     }
     
     public String getFitxer(){
@@ -77,19 +95,25 @@ public class Model {
         return false;
     }
     
-    public String getSimilar(String par){
+    public String[] getSimilar(String par, int maxDist){
+        List<Paraula> similars = new LinkedList<>();
         ArrayList<String> candidates = dic.get(par.charAt(0));
-        int minDist = Integer.MAX_VALUE;
-        String newPar = "";
+        String newPar;
         for (int i = 0; i < candidates.size(); i++){
             int dist = LevenshteinDistance.computeLevenshteinDistance(par, candidates.get(i));
-            if (dist < minDist){
-                minDist = dist;
+            if (dist < maxDist){
                 newPar = candidates.get(i);
+                similars.add(new Paraula(newPar, dist));
             }
         }
+        Collections.sort(similars, (Paraula left, Paraula right) -> left.getDist() - right.getDist());
         
-        return newPar;
+        String[] ordenades = new String[similars.size()];
+        for (int i = 0; i < similars.size(); i++) {
+            Paraula paraula = similars.get(i);
+            ordenades[i] = paraula.par;
+        }
+        return ordenades;
     }
     
     public void clearText(){

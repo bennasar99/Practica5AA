@@ -13,11 +13,17 @@ public class Paraula {
     String par;
     int pos;
     int len;
+    int dist = Integer.MAX_VALUE;
 
     public Paraula(String par, int pos, int len){
         this.par = par;
         this.pos = pos;
         this.len = len;
+    }
+    
+    public Paraula(String par, int dist){
+        this.par = par;
+        this.dist = dist;
     }
     
     public int getLenght(){
@@ -42,5 +48,13 @@ public class Paraula {
 
     public void setPar(String par) {
         this.par = par;
+    }
+    
+    public int getDist(){
+        return this.dist;
+    }
+    
+    public void setDist(int dist){
+        this.dist = dist;
     }
 }

@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -133,8 +134,10 @@ public class Control extends Thread implements Notifica {
                 System.out.print("CORRECTA: "+par);
             }
             else{
-                String newPar = prog.getModel().getSimilar(par);
-                System.out.println("INCORRECTA "+par+", CORRECCIÓ: "+newPar);
+                String[] opcions = prog.getModel().getSimilar(par, 3);
+
+                prog.getModel().setOpcions(opcions);
+                System.out.println("INCORRECTA "+par+", CORRECCIÓ: "+opcions[0]);
                 String[] split = corregit.split(par);
                 corregit = corregit.replace(par, Model.REDSTRING+par+Model.REDSTRING);
             }
@@ -143,6 +146,8 @@ public class Control extends Thread implements Notifica {
         prog.getModel().addText(corregit);
     }
 
+    
+    
     
     @Override
     public void notificar(Missatge m, long n) {

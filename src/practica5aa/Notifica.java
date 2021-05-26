@@ -15,7 +15,8 @@ public interface Notifica {
         DIBUIXA,
         LLEGEIX,
         CORREGEIX,
-        POPUP
+        POPUP,
+        SEGUENT
     }
     /**
      *
