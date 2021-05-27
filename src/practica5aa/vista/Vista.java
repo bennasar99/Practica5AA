@@ -66,17 +66,17 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         
         JPanel bots = new JPanel();
 
-        botoSel = new JButton("Seleccionar fitxer");
+        botoSel = new JButton("Carregar fitxer");
         botoSel.addActionListener(this);
         bots.add(botoSel);
         
         botoCorr = new JButton("Marcar incorrectes");
-        botoCorr.setEnabled(false);
+        botoCorr.setEnabled(true);
         botoCorr.addActionListener(this);
         bots.add(botoCorr);
         
         bots.add(new JLabel("Correcció: "));
-        Border border = BorderFactory.createLineBorder(Color.BLUE, 5);
+        Border border = BorderFactory.createLineBorder(Color.BLUE, 2);
         parActual.setBorder(border);
         bots.add(parActual);
         bots.add(new JLabel("a"));
@@ -125,13 +125,12 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         textPane.setText("");
         
         StringBuilder str = new StringBuilder();
-        if (fc.getSelectedFile() == null){
-            str.append("Selecciona un fitxer...");
-        }
-        else{
+        if (!prog.getModel().getText().isEmpty()){
             str.append(prog.getModel().getText());
             if (prog.getModel().getOpcions() != null){
-                            parActual.setText(prog.getModel().getText().split(Model.REDSTRING)[1]);
+                if (prog.getModel().getText().split(Model.REDSTRING).length > 1){
+                    parActual.setText(prog.getModel().getText().split(Model.REDSTRING)[1]);
+                }
                 String[] opcions = new String[0];
                 if (!parActual.getText().isEmpty()){
                     opcions = prog.getModel().getSimilar(parActual.getText(), 3);
@@ -152,7 +151,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
             if (part.isEmpty()){
                 continue;
             }
-            System.out.println("PART: "+part);
+            //System.out.println("PART: "+part);
             appendToPane(textPane, part, col);
             if (col == Color.BLACK){
                 col = Color.RED;
@@ -175,7 +174,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
 
         comanda = comanda.substring(a, comanda.indexOf(",", a)).toUpperCase();
         switch(comanda){
-            case "SELECCIONAR FITXER":
+            case "CARREGAR FITXER":
                 //Create a file chooser
                 int returnVal = fc.showOpenDialog(this);
                 if (returnVal == JFileChooser.APPROVE_OPTION){
@@ -188,6 +187,10 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
                 }
                 break;
             case "MARCAR INCORRECTES":
+                if (!textPane.getText().equals(prog.getModel().getText())){
+                    prog.getModel().setText(textPane.getText());
+                    System.out.println("Canviar a: "+textPane.getText());
+                }
                 prog.notificar(Missatge.CORREGEIX, 0);
                 botoSeg.setEnabled(true);
                 //parActual.setText(prog.getModel().getText().split(Model.REDSTRING)[1]);

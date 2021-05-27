@@ -57,4 +57,13 @@ public class Paraula {
     public void setDist(int dist){
         this.dist = dist;
     }
+    
+    @Override
+    public boolean equals(Object p2){
+       if (!p2.getClass().equals(this.getClass())){
+           return false;
+       }
+       Paraula other = (Paraula)p2;
+       return other.par.equals(this.par);
+    }
 }

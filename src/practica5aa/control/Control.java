@@ -42,15 +42,15 @@ public class Control extends Thread implements Notifica {
     public void run() {
        switch(this.mode){
            case LLEGIR:
+               llegirFitxer(prog.getModel().getFitxer());
+               prog.notificar(Missatge.DIBUIXA, 0);
+               break;
+           case CORREGIR:
                if (prog.getModel().isDicEmpty()){
                    System.out.println("LLEGINT DIC");
                    carregaDiccionari(prog.getModel().getDirPath());
                }
-               llegirFitxer(prog.getModel().getFitxer());
                cercarParaules();
-               prog.notificar(Missatge.DIBUIXA, 0);
-               break;
-           case CORREGIR:
                corregir();
                prog.notificar(Missatge.DIBUIXA, 0);
                break;
@@ -120,6 +120,9 @@ public class Control extends Thread implements Notifica {
             }
             i++;
         }
+        if (str.length() > 0){
+            prog.getModel().addParaula(str.toString(), i, str.length());
+        }
         for (int j = 0; j < prog.getModel().getNumParaules(); j++){
             Paraula par = prog.getModel().getParaula(j);
             System.out.println(par.getPar()+", "+par.getLenght()+", "+par.getPos());
@@ -140,6 +143,7 @@ public class Control extends Thread implements Notifica {
                 System.out.println("INCORRECTA "+par+", CORRECCIÓ: "+opcions[0]);
                 String[] split = corregit.split(par);
                 corregit = corregit.replace(par, Model.REDSTRING+par+Model.REDSTRING);
+                
             }
         }
         prog.getModel().clearText();

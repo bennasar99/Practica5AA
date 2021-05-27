@@ -66,6 +66,10 @@ public class Model {
     }
     
     public void addParaula(String paraula, int pos, int length){
+        Paraula par = new Paraula(paraula, pos, length);
+        if (words.contains(par)){
+            return;
+        }
         words.add(new Paraula(paraula, pos, length));
     }
     
