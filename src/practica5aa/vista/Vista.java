@@ -87,6 +87,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         //Indices start at 0, so 4 specifies the pig.
         boxCorr = new JComboBox(opcionsCorreccio);
         boxCorr.addActionListener(this);
+        botoCorr.setMultiClickThreshhold(1000);
         boxCorr.setToolTipText("Selecciona la paraula correcta:");
         
         bots.add(BorderLayout.NORTH, boxCorr);
@@ -94,6 +95,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         botoSeg = new JButton("Corregir següent");
         botoSeg.setEnabled(false);
         botoSeg.addActionListener(this);
+        botoSeg.setMultiClickThreshhold(100);
         bots.add(botoSeg);
         
         this.add(BorderLayout.NORTH, bots);
@@ -124,16 +126,15 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
    
         textPane.setText("");
         
-        StringBuilder str = new StringBuilder();
-        if (!prog.getModel().getText().isEmpty()){
-            str.append(prog.getModel().getText());
+        String text = prog.getModel().getText(); 
+        if (!text.isEmpty()){
             if (prog.getModel().getOpcions() != null){
-                if (prog.getModel().getText().split(Model.REDSTRING).length > 1){
-                    parActual.setText(prog.getModel().getText().split(Model.REDSTRING)[1]);
+                if (text.split(Model.REDSTRING).length > 1){
+                    parActual.setText(text.split(Model.REDSTRING)[1]);
                 }
                 String[] opcions = new String[0];
                 if (!parActual.getText().isEmpty()){
-                    opcions = prog.getModel().getSimilar(parActual.getText(), 3);
+                    opcions = prog.getModel().getOpcions();
                 }
                 this.boxCorr.removeAllItems();
                 for (int i = 0; i < opcions.length; i++){
@@ -142,9 +143,9 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
             }
         }
         
-        String[] substr = str.toString().split(Model.REDSTRING);
+        String[] substr = text.split(Model.REDSTRING);
         Color col = Color.BLACK;
-        if (str.toString().startsWith(Model.REDSTRING)){
+        if (text.startsWith(Model.REDSTRING)){
             col = Color.RED;
         }
         for (String part : substr){
@@ -175,7 +176,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         comanda = comanda.substring(a, comanda.indexOf(",", a)).toUpperCase();
         switch(comanda){
             case "CARREGAR FITXER":
-                //Create a file chooser
+                prog.getModel().reset();
                 int returnVal = fc.showOpenDialog(this);
                 if (returnVal == JFileChooser.APPROVE_OPTION){
                     String fname = fc.getSelectedFile().getPath();
@@ -183,25 +184,20 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
                     prog.getModel().setFitxer(fname);
                     prog.notificar(Missatge.LLEGEIX, 0);
                     botoCorr.setEnabled(true);
-                    this.pinta();
                 }
                 break;
             case "MARCAR INCORRECTES":
-                if (!textPane.getText().equals(prog.getModel().getText())){
-                    prog.getModel().setText(textPane.getText());
-                    System.out.println("Canviar a: "+textPane.getText());
-                }
+                prog.getModel().reset();
+                prog.getModel().setText(textPane.getText());
                 prog.notificar(Missatge.CORREGEIX, 0);
                 botoSeg.setEnabled(true);
-                //parActual.setText(prog.getModel().getText().split(Model.REDSTRING)[1]);
                 break;
             case "CORREGIR SEGÜENT":
-                String ant = prog.getModel().getText();
+                
+                prog.getModel().substitueix(parActual.getText(), boxCorr.getSelectedItem().toString());
                 System.out.println("Replace "+Model.REDSTRING+parActual.getText()+Model.REDSTRING+" with "+ boxCorr.getSelectedItem().toString());
-                prog.getModel().setText(prog.getModel().getText().replace(Model.REDSTRING+parActual.getText()+Model.REDSTRING, boxCorr.getSelectedItem().toString()));
-                botoSeg.setEnabled(true);
-                System.out.println("Anterior: "+ant+", Actual: "+prog.getModel().getText());
-                this.pinta();
+                //botoSeg.setEnabled(true);
+                prog.notificar(Missatge.SEGUENT, 0);
                 break;
         }
         
@@ -219,7 +215,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
             this.pinta();
         }
         else if (m == Missatge.POPUP){
-            JOptionPane.showMessageDialog(null, "He tardat "+n+" nanosegons", "ACABAT!", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "No s'han trobat errades", "CORRECTE!", JOptionPane.INFORMATION_MESSAGE);
         }
     }
     

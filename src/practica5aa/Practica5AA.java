@@ -56,20 +56,17 @@ public class Practica5AA implements Notifica{
         
         switch(m){
             
-            case LLEGEIX:
-                control = new Control(this);
+            case LLEGEIX: case CORREGEIX: case SEGUENT:
+                if (control == null){
+                    control = new Control(this);
+                }
+                if (!control.isAlive()){
+                    control = new Control(this);
+                }
                 control.notificar(m, n);
                 break;
-            case CORREGEIX:
-                control = new Control(this);
-                control.notificar(m, n);
-                break;
-            case DIBUIXA:
-                vista.pinta();
-                break;
-            case POPUP:
+            case DIBUIXA: case POPUP:
                 vista.notificar(m, n);
-                //vista.pinta();
                 break;
         }
         

@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +31,8 @@ import practica5aa.model.Paraula;
 public class Control extends Thread implements Notifica {
     private enum Mode {
         LLEGIR,
-        CORREGIR
+        CORREGIR,
+        SEGUENT
     }
     private Practica5AA prog;
     private Mode mode = Mode.LLEGIR;
@@ -52,6 +54,10 @@ public class Control extends Thread implements Notifica {
                }
                cercarParaules();
                corregir();
+               prog.notificar(Missatge.DIBUIXA, 0);
+               break;
+           case SEGUENT:
+               seguent();
                prog.notificar(Missatge.DIBUIXA, 0);
                break;
        }
@@ -85,14 +91,16 @@ public class Control extends Thread implements Notifica {
             FileReader fr = new FileReader(path);
             BufferedReader br = new BufferedReader(fr);
             String line = br.readLine();
+            StringBuilder str = new StringBuilder();
             while (line != null){
-                prog.getModel().addText(line+"\n");
+                str.append(line+"\n");
                 line = br.readLine();
             }
             br.close();
             fr.close();
             //byte[] arr = new byte[(int)raf.length()];
             //raf.read(arr);
+            prog.getModel().setText(str.toString());
             //prog.getModel().addText(new String(arr, StandardCharsets.UTF_8));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Control.class.getName()).log(Level.SEVERE, null, ex);
@@ -108,7 +116,7 @@ public class Control extends Thread implements Notifica {
         StringBuilder str = new StringBuilder();
         while (i < len){ //Convertir a for
             char c = text.charAt(i);
-            if (!Character.isWhitespace(c)){
+            if (Character.isAlphabetic(c)){
                 str.append(c);
             }
             else{
@@ -137,19 +145,64 @@ public class Control extends Thread implements Notifica {
                 System.out.print("CORRECTA: "+par);
             }
             else{
-                String[] opcions = prog.getModel().getSimilar(par, 3);
+                String[] opcions = getSimilar(par, 3);
 
-                prog.getModel().setOpcions(opcions);
-                System.out.println("INCORRECTA "+par+", CORRECCIÓ: "+opcions[0]);
-                String[] split = corregit.split(par);
-                corregit = corregit.replace(par, Model.REDSTRING+par+Model.REDSTRING);
+                if (opcions != null && opcions.length > 0){
+                    prog.getModel().setOpcions(opcions);
+                    System.out.println("INCORRECTA "+par+", CORRECCIÓ: "+opcions[0]);
+                    corregit = corregit.replace(par, Model.REDSTRING+par+Model.REDSTRING);   
+                }
                 
             }
         }
         prog.getModel().clearText();
-        prog.getModel().addText(corregit);
+        prog.getModel().setText(corregit);
+        if (!prog.getModel().isTextCorrecte()){
+            prog.getModel().setOpcions(this.getSimilar(prog.getModel().getText().split(Model.REDSTRING)[1], 3));
+        }
+        else{
+            prog.notificar(Missatge.POPUP, 0);
+        }
+        prog.notificar(Missatge.DIBUIXA, 0);
     }
-
+    
+    public String[] getSimilar(String par, int maxDist){
+        if (par.isEmpty()){
+            return null;
+        }
+        List<Paraula> similars = new LinkedList<>();
+        String[] candidates = prog.getModel().getDicStartingWith(par.charAt(0));
+        if (candidates == null || candidates.length == 0){
+            return null;
+        }
+        String newPar;
+        for (int i = 0; i < candidates.length; i++){
+            int dist = Levenshtein.calcularDistancia(par, candidates[i]);
+            if (dist < maxDist){
+                newPar = candidates[i];
+                similars.add(new Paraula(newPar, dist));
+            }
+        }
+        Collections.sort(similars, (Paraula left, Paraula right) -> left.getDist() - right.getDist());
+        
+        String[] ordenades = new String[similars.size()];
+        for (int i = 0; i < similars.size(); i++) {
+            Paraula paraula = similars.get(i);
+            ordenades[i] = paraula.getPar();
+        }
+        return ordenades;
+    }
+    
+    public void seguent(){
+        System.out.println("SEGÜENT");
+        System.out.println("TEXT: "+prog.getModel().getText());
+        if (!prog.getModel().isTextCorrecte()){
+            prog.getModel().setOpcions(this.getSimilar(prog.getModel().getText().split(Model.REDSTRING)[1], 3));   
+        }
+        else{
+            prog.notificar(Missatge.POPUP, 0);
+        }
+    }
     
     
     
@@ -164,7 +217,38 @@ public class Control extends Thread implements Notifica {
                 this.mode = Mode.CORREGIR;
                 this.start();
                 break;
+            case SEGUENT:
+                this.mode = Mode.SEGUENT;
+                this.start();
+                break;
         }
     }
     
+}
+
+class Levenshtein {
+    private static int min3(int a, int b, int c) {
+         return Math.min(a, Math.min(b, c));
+    }
+
+    public static int calcularDistancia(String str1, String str2) {
+        
+        int [][]distance = new int[str1.length()+1][str2.length()+1];
+
+        for(int i=0;i<=str1.length();i++){
+                distance[i][0]=i;
+        }
+        for(int j=0;j<=str2.length();j++){
+                distance[0][j]=j;
+        }
+        for(int i=1;i<=str1.length();i++){
+            for(int j=1;j<=str2.length();j++){
+                    int add = (str1.charAt(i-1)==str2.charAt(j-1))? 0:1;
+                    distance[i][j]= min3(distance[i-1][j]+1, distance[i][j-1]+1,
+                                    distance[i-1][j-1]+ add);
+            }
+        }
+        return distance[str1.length()][str2.length()];
+        
+    }
 }

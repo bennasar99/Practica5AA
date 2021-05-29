@@ -6,6 +6,7 @@
 package practica5aa.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,15 +19,19 @@ public class Model {
     
     private ArrayList<Paraula> words = new ArrayList<>(); 
     private HashMap< Character, ArrayList<String> > dic = new HashMap<>();
-    private StringBuilder text;
+    private String text = "";
     private String path;
     private final String dirPath = System.getProperty("user.dir") + "/dic/esutfnobom.dic";
-    private int nWord = 0;
-    public final static String REDSTRING = "<b>";
-    private String[] opcions;
+    //private int nWord = 0;
+    public final static String REDSTRING = "æ"; //Caràcter que ningú posarà (esperem)
+    private String[] opcions; //Opcions per mostrar a la selecció de paraula correcte
 
     public Model(){
-        text = new StringBuilder();
+    }
+    
+    public void reset(){
+        words.clear();
+        opcions = null;
     }
     
     public void setOpcions(String[] opcions){
@@ -42,7 +47,7 @@ public class Model {
     }
     
     public void setText(String text){
-        this.text = new StringBuilder(text);
+        this.text = text;
     }
     
     public String getFitxer(){
@@ -51,10 +56,6 @@ public class Model {
     
     public void setFitxer(String path){
         this.path = path;
-    }
-    
-    public void addText(String text){
-        this.text.append(text);
     }
     
     public void addParaulaDiccionari(String paraula){
@@ -90,7 +91,13 @@ public class Model {
     }
     
     public boolean esCorrecta(String par){
+        if (Character.isUpperCase(par.charAt(0))){ //La donam per bona, no corregim noms propis
+            return true;
+        }
         ArrayList<String> candidates = dic.get(par.charAt(0));
+        if (candidates == null){
+            return false;
+        }
         for (int i = 0; i < candidates.size(); i++){
             if (par.equals(candidates.get(i))){
                 return true;
@@ -99,59 +106,23 @@ public class Model {
         return false;
     }
     
-    public String[] getSimilar(String par, int maxDist){
-        List<Paraula> similars = new LinkedList<>();
-        ArrayList<String> candidates = dic.get(par.charAt(0));
-        String newPar;
-        for (int i = 0; i < candidates.size(); i++){
-            int dist = LevenshteinDistance.computeLevenshteinDistance(par, candidates.get(i));
-            if (dist < maxDist){
-                newPar = candidates.get(i);
-                similars.add(new Paraula(newPar, dist));
-            }
+    public void substitueix(String oldPar, String newPar){
+        this.text = this.text.replace(REDSTRING+oldPar+REDSTRING, newPar);
+    }
+    
+    public String[] getDicStartingWith(char c){
+        ArrayList<String> candidates = dic.get(c);
+        if (candidates == null || candidates.isEmpty()){
+            return null;
         }
-        Collections.sort(similars, (Paraula left, Paraula right) -> left.getDist() - right.getDist());
-        
-        String[] ordenades = new String[similars.size()];
-        for (int i = 0; i < similars.size(); i++) {
-            Paraula paraula = similars.get(i);
-            ordenades[i] = paraula.par;
-        }
-        return ordenades;
+        return Arrays.stream(candidates.toArray()).toArray(String[]::new);
     }
     
     public void clearText(){
-        text = new StringBuilder();
+        text = "";
     }
-}
-
-class LevenshteinDistance {
-    private static int minimum(int a, int b, int c) {
-         return Math.min(a, Math.min(b, c));
-    }
-
-    public static int computeLevenshteinDistance(String str1, String str2) {
-        return computeLevenshteinDistance(str1.toCharArray(),
-                                          str2.toCharArray());
-    }
-    private static int computeLevenshteinDistance(char [] str1, char [] str2) {
-        int [][]distance = new int[str1.length+1][str2.length+1];
-
-        for(int i=0;i<=str1.length;i++){
-                distance[i][0]=i;
-        }
-        for(int j=0;j<=str2.length;j++){
-                distance[0][j]=j;
-        }
-        for(int i=1;i<=str1.length;i++){
-            for(int j=1;j<=str2.length;j++){ 
-                  distance[i][j]= minimum(distance[i-1][j]+1,
-                                        distance[i][j-1]+1,
-                                        distance[i-1][j-1]+
-                                        ((str1[i-1]==str2[j-1])?0:1));
-            }
-        }
-        return distance[str1.length][str2.length];
-        
+    
+    public boolean isTextCorrecte(){
+        return !text.contains(REDSTRING);
     }
 }
