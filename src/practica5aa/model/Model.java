@@ -90,24 +90,12 @@ public class Model {
         return (this.dic.isEmpty());
     }
     
-    public boolean esCorrecta(String par){
-        if (Character.isUpperCase(par.charAt(0))){ //La donam per bona, no corregim noms propis
-            return true;
-        }
-        ArrayList<String> candidates = dic.get(par.charAt(0));
-        if (candidates == null){
-            return false;
-        }
-        for (int i = 0; i < candidates.size(); i++){
-            if (par.equals(candidates.get(i))){
-                return true;
-            }
-        }
-        return false;
+    public void substitueix(String oldPar, String newPar){
+        this.text = this.text.replaceFirst(REDSTRING+oldPar+REDSTRING, newPar);
     }
     
-    public void substitueix(String oldPar, String newPar){
-        this.text = this.text.replace(REDSTRING+oldPar+REDSTRING, newPar);
+    public void marcaIncorrecta(String par){
+        this.text = this.text.replaceFirst(par, REDSTRING+par+REDSTRING);
     }
     
     public String[] getDicStartingWith(char c){
@@ -116,10 +104,6 @@ public class Model {
             return null;
         }
         return Arrays.stream(candidates.toArray()).toArray(String[]::new);
-    }
-    
-    public void clearText(){
-        text = "";
     }
     
     public boolean isTextCorrecte(){

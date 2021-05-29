@@ -128,18 +128,18 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         
         String text = prog.getModel().getText(); 
         if (!text.isEmpty()){
+            String[] opcions = new String[0];
             if (prog.getModel().getOpcions() != null){
                 if (text.split(Model.REDSTRING).length > 1){
                     parActual.setText(text.split(Model.REDSTRING)[1]);
                 }
-                String[] opcions = new String[0];
                 if (!parActual.getText().isEmpty()){
                     opcions = prog.getModel().getOpcions();
                 }
-                this.boxCorr.removeAllItems();
-                for (int i = 0; i < opcions.length; i++){
-                    this.boxCorr.addItem(opcions[i]);
-                }
+            }
+            this.boxCorr.removeAllItems();
+            for (int i = 0; i < opcions.length; i++){
+                this.boxCorr.addItem(opcions[i]);
             }
         }
         
@@ -193,9 +193,21 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
                 botoSeg.setEnabled(true);
                 break;
             case "CORREGIR SEGÜENT":
-                
-                prog.getModel().substitueix(parActual.getText(), boxCorr.getSelectedItem().toString());
-                System.out.println("Replace "+Model.REDSTRING+parActual.getText()+Model.REDSTRING+" with "+ boxCorr.getSelectedItem().toString());
+                if (boxCorr.getSelectedItem() != null){
+                    String btStr = boxCorr.getSelectedItem().toString();
+                    if (btStr.equals("BOTAR")){
+                        prog.getModel().substitueix(parActual.getText(), parActual.getText());  
+                    }
+                    else if (btStr.equals("ELIMINAR")){
+                        prog.getModel().substitueix(parActual.getText(), "");  
+                    }
+                    else{
+                        prog.getModel().substitueix(parActual.getText(), boxCorr.getSelectedItem().toString());   
+                    }
+                    System.out.println("Replace "+Model.REDSTRING+parActual.getText()+Model.REDSTRING+" with "+ boxCorr.getSelectedItem().toString());
+                }else{
+                    prog.getModel().substitueix(parActual.getText(), "");   
+                }
                 //botoSeg.setEnabled(true);
                 prog.notificar(Missatge.SEGUENT, 0);
                 break;

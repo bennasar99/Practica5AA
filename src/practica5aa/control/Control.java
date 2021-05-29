@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,36 +134,22 @@ public class Control extends Thread implements Notifica {
         }
         for (int j = 0; j < prog.getModel().getNumParaules(); j++){
             Paraula par = prog.getModel().getParaula(j);
-            System.out.println(par.getPar()+", "+par.getLenght()+", "+par.getPos());
+            //System.out.println(par.getPar()+", "+par.getLenght()+", "+par.getPos());
         }
     }
     
     public void corregir(){
-        String corregit = prog.getModel().getText();
         for (int i = 0; i < prog.getModel().getNumParaules(); i++){
             String par = prog.getModel().getParaula(i).getPar();
-            if (prog.getModel().esCorrecta(par)){
+            if (esCorrecta(par)){
                 System.out.print("CORRECTA: "+par);
             }
             else{
-                String[] opcions = getSimilar(par, 3);
-
-                if (opcions != null && opcions.length > 0){
-                    prog.getModel().setOpcions(opcions);
-                    System.out.println("INCORRECTA "+par+", CORRECCIÓ: "+opcions[0]);
-                    corregit = corregit.replace(par, Model.REDSTRING+par+Model.REDSTRING);   
-                }
+                prog.getModel().marcaIncorrecta(par);
                 
             }
         }
-        prog.getModel().clearText();
-        prog.getModel().setText(corregit);
-        if (!prog.getModel().isTextCorrecte()){
-            prog.getModel().setOpcions(this.getSimilar(prog.getModel().getText().split(Model.REDSTRING)[1], 3));
-        }
-        else{
-            prog.notificar(Missatge.POPUP, 0);
-        }
+        seguent();
         prog.notificar(Missatge.DIBUIXA, 0);
     }
     
@@ -193,13 +180,38 @@ public class Control extends Thread implements Notifica {
         return ordenades;
     }
     
+        
+    public boolean esCorrecta(String par){
+        if (Character.isUpperCase(par.charAt(0))){ //La donam per bona, no corregim noms propis
+            return true;
+        }
+        String[] candidates = prog.getModel().getDicStartingWith(par.charAt(0));
+        if (candidates == null){
+            return false;
+        }
+        for (int i = 0; i < candidates.length; i++){
+            if (par.equals(candidates[i])){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void seguent(){
         System.out.println("SEGÜENT");
         System.out.println("TEXT: "+prog.getModel().getText());
         if (!prog.getModel().isTextCorrecte()){
-            prog.getModel().setOpcions(this.getSimilar(prog.getModel().getText().split(Model.REDSTRING)[1], 3));   
+            String[] opcions = getSimilar(prog.getModel().getText().split(Model.REDSTRING)[1], 3);
+            if (opcions != null && opcions.length > 0){
+                prog.getModel().setOpcions(opcions);  
+            }
+            else{
+                System.out.println("DFS");
+                prog.getModel().setOpcions(new String[]{"BOTAR", "ELIMINAR"});
+            }
         }
         else{
+            prog.notificar(Missatge.DIBUIXA, 0);
             prog.notificar(Missatge.POPUP, 0);
         }
     }
