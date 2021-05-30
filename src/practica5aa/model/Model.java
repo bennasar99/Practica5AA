@@ -113,4 +113,8 @@ public class Model {
     public int getNumIncorrectes(){
         return (int)text.chars().filter(ch -> ch == REDSTRING.charAt(0)).count()/2;
     }
+    
+    public String getPrimeraIncorrecta(){
+        return this.text.split(REDSTRING)[1];
+    }
 }

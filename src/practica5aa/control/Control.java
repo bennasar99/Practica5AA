@@ -202,8 +202,8 @@ public class Control extends Thread implements Notifica {
     }
     
     public void seguent(){
-        System.out.println("SEGÜENT");
-        System.out.println("TEXT: "+prog.getModel().getText());
+        //System.out.println("SEGÜENT");
+        //System.out.println("TEXT: "+prog.getModel().getText());
         if (!prog.getModel().isTextCorrecte()){
             String[] opcions = getSimilar(prog.getModel().getText().split(Model.REDSTRING)[1], 3);
             if (opcions != null && opcions.length > 0){

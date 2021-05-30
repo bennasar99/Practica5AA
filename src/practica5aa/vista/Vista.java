@@ -130,8 +130,8 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         if (!text.isEmpty()){
             String[] opcions = new String[0];
             if (prog.getModel().getOpcions() != null){
-                if (text.split(Model.REDSTRING).length > 1){
-                    parActual.setText(text.split(Model.REDSTRING)[1]);
+                if (!prog.getModel().isTextCorrecte()){
+                    parActual.setText(prog.getModel().getPrimeraIncorrecta());
                 }
                 if (!parActual.getText().isEmpty()){
                     opcions = prog.getModel().getOpcions();
