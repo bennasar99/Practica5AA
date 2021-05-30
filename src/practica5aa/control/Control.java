@@ -149,6 +149,10 @@ public class Control extends Thread implements Notifica {
                 
             }
         }
+        int incorrectes = prog.getModel().getNumIncorrectes();
+        if (incorrectes > 0){
+            prog.notificar(Missatge.POPUP, incorrectes);
+        }
         seguent();
         prog.notificar(Missatge.DIBUIXA, 0);
     }

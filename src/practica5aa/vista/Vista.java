@@ -227,7 +227,12 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
             this.pinta();
         }
         else if (m == Missatge.POPUP){
-            JOptionPane.showMessageDialog(null, "No s'han trobat errades", "CORRECTE!", JOptionPane.INFORMATION_MESSAGE);
+            if (n == 0){
+                JOptionPane.showMessageDialog(null, "No s'han trobat errades", "CORRECTE!", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "S'han trobat "+n+" errades", "INCORRECTE", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
     

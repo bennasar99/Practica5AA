@@ -109,4 +109,8 @@ public class Model {
     public boolean isTextCorrecte(){
         return !text.contains(REDSTRING);
     }
+    
+    public int getNumIncorrectes(){
+        return (int)text.chars().filter(ch -> ch == REDSTRING.charAt(0)).count()/2;
+    }
 }
