@@ -141,6 +141,10 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
             for (int i = 0; i < opcions.length; i++){
                 this.boxCorr.addItem(opcions[i]);
             }
+            if (!parActual.getText().isEmpty()){
+                this.boxCorr.addItem("BOTAR");
+                this.boxCorr.addItem("ELIMINAR");   
+            }
         }
         
         String[] substr = text.split(Model.REDSTRING);
@@ -180,7 +184,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
                 int returnVal = fc.showOpenDialog(this);
                 if (returnVal == JFileChooser.APPROVE_OPTION){
                     String fname = fc.getSelectedFile().getPath();
-                    System.out.println(fname);
+                    //System.out.println(fname);
                     prog.getModel().setFitxer(fname);
                     prog.notificar(Missatge.LLEGEIX, 0);
                     botoCorr.setEnabled(true);
@@ -204,7 +208,7 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
                     else{
                         prog.getModel().substitueix(parActual.getText(), boxCorr.getSelectedItem().toString());   
                     }
-                    System.out.println("Replace "+Model.REDSTRING+parActual.getText()+Model.REDSTRING+" with "+ boxCorr.getSelectedItem().toString());
+                    //System.out.println("Replace "+Model.REDSTRING+parActual.getText()+Model.REDSTRING+" with "+ boxCorr.getSelectedItem().toString());
                 }else{
                     prog.getModel().substitueix(parActual.getText(), "");   
                 }
@@ -229,6 +233,8 @@ public class Vista extends JFrame implements ActionListener, ChangeListener, Not
         else if (m == Missatge.POPUP){
             if (n == 0){
                 JOptionPane.showMessageDialog(null, "No s'han trobat errades", "CORRECTE!", JOptionPane.INFORMATION_MESSAGE);
+                parActual.setText("");
+                this.boxCorr.removeAllItems();
             }
             else{
                 JOptionPane.showMessageDialog(null, "S'han trobat "+n+" errades", "INCORRECTE", JOptionPane.ERROR_MESSAGE);

@@ -50,7 +50,7 @@ public class Control extends Thread implements Notifica {
                break;
            case CORREGIR:
                if (prog.getModel().isDicEmpty()){
-                   System.out.println("LLEGINT DIC");
+                   //System.out.println("LLEGINT DIC");
                    carregaDiccionari(prog.getModel().getDirPath());
                }
                cercarParaules();
@@ -77,7 +77,7 @@ public class Control extends Thread implements Notifica {
             }
             br.close();
             fr.close();
-            System.out.println("FI CÀRREGA DIC");
+            //System.out.println("FI CÀRREGA DIC");
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Control.class.getName()).log(Level.SEVERE, null, ex);
@@ -142,7 +142,7 @@ public class Control extends Thread implements Notifica {
         for (int i = 0; i < prog.getModel().getNumParaules(); i++){
             String par = prog.getModel().getParaula(i).getPar();
             if (esCorrecta(par)){
-                System.out.print("CORRECTA: "+par);
+                //System.out.print("CORRECTA: "+par);
             }
             else{
                 prog.getModel().marcaIncorrecta(par);
@@ -208,10 +208,6 @@ public class Control extends Thread implements Notifica {
             String[] opcions = getSimilar(prog.getModel().getText().split(Model.REDSTRING)[1], 3);
             if (opcions != null && opcions.length > 0){
                 prog.getModel().setOpcions(opcions);  
-            }
-            else{
-                System.out.println("DFS");
-                prog.getModel().setOpcions(new String[]{"BOTAR", "ELIMINAR"});
             }
         }
         else{
